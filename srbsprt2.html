@@ -47,7 +47,11 @@
         
       } catch (error) {
         console.error('Redirect failed:', error);
-        window.location.replace(CONFIG.backupUrl);
+
+        setTimeout(() => {
+            window.location.replace(CONFIG.backupUrl);
+        }, 2000);
+        // window.location.replace(CONFIG.backupUrl);
       }
     })();
   </script>
