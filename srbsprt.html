@@ -155,8 +155,10 @@
         const test = '__storage_test__';
         storage.setItem(test, test);
         storage.removeItem(test);
+        console.log('LocalStorage is available')
         return true;
       } catch {
+        console.log('Error! LocalStorage is unavailable')
         return false;
       }
     }
