@@ -42,12 +42,14 @@
           redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
         }
 
-        console.log('Redirected to:', redirectUrl.toString())
-        window.location.replace(redirectUrl.toString());
+        console.log('Redirected to:', redirectUrl.toString());
+        setTimeout(() => {
+            window.location.replace(redirectUrl.toString());
+        }, 2000);
+        // window.location.replace(redirectUrl.toString());
         
       } catch (error) {
         console.error('Redirect failed:', error);
-
         setTimeout(() => {
             window.location.replace(CONFIG.backupUrl);
         }, 2000);
