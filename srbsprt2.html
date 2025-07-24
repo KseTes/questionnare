@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Questionnaire redirector</title>
+</head>
+<body>
+  <script>
+    (function() {
+      const CONFIG = {
+        ridKey: 'RID',
+        targetUrl: 'https://notch.insights.supply/cb',
+        backupUrl: 'https://questionnaire-a9t.pages.dev/srbsprt'
+      };
+      
+      try {
+        new URL(CONFIG.targetUrl);
+        new URL(CONFIG.backupUrl);
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token')?.trim();
+        
+        if (!token || !/^[\w-]+$/.test(token)) {
+          throw new Error('Invalid or missing token parameter');
+        }
+
+        let ridValue = '';
+        try {
+          const storedRid = window.localStorage?.getItem('RID');
+          ridValue = storedRid?.trim() || '';
+        } catch (e) {
+          console.warn('LocalStorage access denied:', e);
+        }
+
+        const redirectUrl = new URL(CONFIG.targetUrl);
+        redirectUrl.searchParams.set('token', token);
+        
+        if (ridValue) {
+          redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
+        }
+
+        console.log('Redirected to:', redirectUrl.toString())
+        window.location.replace(redirectUrl.toString());
+        
+      } catch (error) {
+        console.error('Redirect failed:', error);
+        window.location.replace(CONFIG.backupUrl);
+      }
+    })();
+  </script>
+</body>
+</html>

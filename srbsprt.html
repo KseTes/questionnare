@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Questionnaire</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;  
+      background-color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      color: #000;
+    }
+    .wrapper {
+      max-width: 25em;
+      padding: 0.5em;
+    }
+    .question {
+      margin-bottom: 2em;
+      padding: 1.5em 3em;
+      background-color: #555;
+      color: #fff;
+    }
+    .buttons {
+      display: flex;
+      gap: 1.3em;
+      justify-content: center;
+      flex-direction: column;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .question, .button {
+      border-radius: 1.5em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .button {
+      padding: 1.5em 3em;
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-decoration: none;
+      background-color: #fff;
+      color: #111;
+      flex: 1 1 0;
+    }
+    .button:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <section class="wrapper">
+    <div class="question" id="question">Do you bet on sports online?</div>
+    <div class="buttons">
+      <a href="https://yandex.ru/poll/NQz21j3fbknm7XcvLDFX96" class="button" id="yesBtn">YES</a>
+      <a href="https://samplicio.us/s/ClientCallBack.aspx?RIS=40" class="button" id="maybeBtn">NO but maybe will start one day</a>
+      <a href="https://samplicio.us/s/ClientCallBack.aspx?RIS=20" class="button" id="noBtn">NO and most likely will never start</a>
+    </div>
+  </section>
+
+  <script>
+    const CONFIG = {
+      defaultLang: 'en',
+      ridKey: 'RID',
+    };
+
+    const translations = {
+      en: { 
+        question: "Do you bet on sports online?", 
+        yes: "YES", 
+        maybe: "NO but maybe will start one day", 
+        no: "NO and most likely will never start" 
+      },
+      sr: { 
+        question: "Da li se kladite na sport online?", 
+        yes: "DA", 
+        maybe: "NE, ali možda ću jednog dana početi", 
+        no: "NE, i najverovatnije nikada neću početi" 
+      },
+      ru: { 
+        question: "Делаете ли вы ставки на спорт онлайн?", 
+        yes: "ДА", 
+        maybe: "НЕТ, но не против попробовать", 
+        no: "НЕТ и не планирую начинать" 
+      }
+    };
+
+    function updateContent(lang) {
+      try {
+        const questionEl = document.getElementById('question');
+        const buttons = [
+          document.getElementById('yesBtn'),
+          document.getElementById('maybeBtn'), 
+          document.getElementById('noBtn')
+        ];
+        
+        if (!questionEl || buttons.some(btn => !btn)) {
+          throw new Error('One or more elements not found in the DOM');
+        }
+
+        const langData = translations[lang];
+        questionEl.textContent = langData.question;
+        
+        const keys = ['yes', 'maybe', 'no'];
+        buttons.forEach((button, index) => {
+          button.textContent = langData[keys[index]];
+        });
+      } catch (error) {
+        console.error('Failed to update content:', error);
+      }
+    }
+
+    function addRidParam(link, ridValue) {
+      if (!link || !ridValue) return;
+      try {
+        const linkUrl = new URL(link.href);
+        linkUrl.searchParams.set(CONFIG.ridKey, ridValue);
+        link.href = linkUrl.toString();
+      } catch (error) {
+        console.error('Failed to add RID to link:', error);
+      }
+    }
+
+    function isValidRid(ridValue) {
+      return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
+    }
+    
+    function getRidFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        for (const [key, value] of params.entries()) {
+          if (key.toLowerCase() === CONFIG.ridKey && isValidRid(value)) {
+            return value.trim();
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('Failed to parse URL parameters:', error);
+        return null;
+      }
+    }
+
+    function isLocalStorageAvailable() {
+      try {
+        const storage = window.localStorage;
+        const test = '__storage_test__';
+        storage.setItem(test, test);
+        storage.removeItem(test);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const userLang = navigator.language?.split('-')[0] || CONFIG.defaultLang;
+        const currentLang = translations[userLang] ? userLang : CONFIG.defaultLang;
+        updateContent(currentLang);
+
+        const ridValue = getRidFromUrl();
+        if (ridValue && isValidRid(ridValue)) {
+          if (isLocalStorageAvailable()) {
+            localStorage.setItem('RID', ridValue);
+          }
+
+          document.querySelectorAll('.button').forEach(btn => addRidParam(btn, ridValue));
+        }
+      } catch (error) {
+        console.error('Initialization failed:', error);
+      }
+    });
+  </script>
+</body>
+</html>
