@@ -155,10 +155,10 @@
         const test = '__storage_test__';
         storage.setItem(test, test);
         storage.removeItem(test);
-        console.log('LocalStorage is available')
+        console.log('LocalStorage is available');
         return true;
       } catch {
-        console.log('Error! LocalStorage is unavailable')
+        console.log('Error! LocalStorage is unavailable');
         return false;
       }
     }
@@ -169,6 +169,7 @@
         const currentLang = translations[userLang] ? userLang : CONFIG.defaultLang;
         updateContent(currentLang);
 
+        console.log('Start checking...');
         const ridValue = getRidFromUrl();
         if (ridValue && isValidRid(ridValue)) {
           if (isLocalStorageAvailable()) {
