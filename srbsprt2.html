@@ -1,57 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico" />
   <title>Questionnaire redirector</title>
+  <style>
+    body {
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh; font-family:Arial, sans-serif; background:#f0f0f0;
+      margin:0; padding:2em; color:#222;
+    }
+    .msg { max-width:600px; text-align:center; }
+    .msg.error { color:#b00020; }
+    .msg.info { color:#333; }
+  </style>
 </head>
 <body>
+  <div id="message" class="msg info">Redirecting…</div>
+
   <script>
-    (function() {
-      const CONFIG = {
-        ridKey: 'RID',
-        targetUrl: 'https://notch.insights.supply/cb',
-        token: 'c08a1f86-b7ad-409b-b6a3-53f9d4457083',
-        backupUrl: 'https://ksetes.github.io/questionnare/srbsprt'
-      };
-      
+  (function() {
+    const CONFIG = {
+      ridKey: 'RID',
+      targetUrl: 'https://notch.insights.supply/cb',        // фиксированный endpoint
+      token: 'c08a1f86-b7ad-409b-b6a3-53f9d4457083',        // фиксированный token
+      backupUrl: 'https://ksetes.github.io/questionnare/srbsprt'
+    };
+
+    function isValidRid(v) { return !!v && /^[A-Za-z0-9_-]+$/.test(v); }
+
+    function getRid() {
+      // 1) из URL (если вдруг вернулся с RID)
       try {
-        new URL(CONFIG.targetUrl);
-        new URL(CONFIG.backupUrl);
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token')?.trim();
-        
-        if (!token || !/^[\w-]+$/.test(token)) {
-          throw new Error('Invalid or missing token parameter');
-        }
+        const p = new URLSearchParams(location.search);
+        const ridFromUrl = (p.get(CONFIG.ridKey) || '').trim();
+        if (isValidRid(ridFromUrl)) return ridFromUrl;
+      } catch {}
+      // 2) из localStorage
+      try {
+        const ls = (localStorage.getItem(CONFIG.ridKey) || '').trim();
+        if (isValidRid(ls)) return ls;
+      } catch {}
+      // 3) из sessionStorage
+      try {
+        const ss = (sessionStorage.getItem(CONFIG.ridKey) || '').trim();
+        if (isValidRid(ss)) return ss;
+      } catch {}
+      return '';
+    }
 
-        let ridValue = '';
-        try {
-          const storedRid = window.localStorage?.getItem('RID');
-          ridValue = storedRid?.trim() || '';
-        } catch (e) {
-          console.warn('LocalStorage access denied:', e);
-        }
+    function redirect() {
+      const rid = getRid();
+      const msg = document.getElementById('message');
 
-        const redirectUrl = new URL(CONFIG.targetUrl);
-        redirectUrl.searchParams.set('token', CONFIG.token);
-        
-        if (ridValue) {
-          redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
+      if (!isValidRid(rid)) {
+        // если RID нет — показываем сообщение и не редиректим
+        if (msg) {
+          msg.className = 'msg error';
+          msg.textContent = 'RID is missing — please re-open the survey from your panel link.';
         }
-
-        console.log('Redirected to:', redirectUrl.toString());
-        window.location.replace(redirectUrl.toString());
-        
-      } catch (error) {
-        console.error('Redirect failed:', error);
-        window.location.replace(CONFIG.backupUrl);
+        // fallback: через несколько секунд можно вернуть на первый лендинг
+        setTimeout(() => { location.replace(CONFIG.backupUrl); }, 5000);
+        return;
       }
-    })();
+
+      const url = new URL(CONFIG.targetUrl);
+      url.searchParams.set('token', CONFIG.token);   // всегда фиксированный
+      url.searchParams.set(CONFIG.ridKey, rid);      // именно RID (верхний регистр)
+
+      if (msg) {
+        msg.className = 'msg info';
+        msg.textContent = 'Redirecting you to complete…';
+      }
+      console.log('Redirecting to:', url.toString());
+
+      // редирект
+      location.replace(url.toString());
+    }
+
+    document.addEventListener('DOMContentLoaded', redirect);
+  })();
   </script>
 </body>
 </html>
-
