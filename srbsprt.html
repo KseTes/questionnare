@@ -1,60 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico" />
   <title>Questionnaire</title>
   <style>
+    :root { color-scheme: light dark; }
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      padding: 0;  
-      background-color: #e0e0e0;
-      font-family: Arial, sans-serif;
-      font-size: 20px;
-      color: #000;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      height:100vh; margin:0; padding:0; background-color:#e0e0e0;
+      font-family:Arial, sans-serif; font-size:20px; color:#000;
     }
-    .wrapper {
-      max-width: 25em;
-      padding: 0.5em;
-    }
+    .wrapper { max-width:25em; padding:0.5em; }
     .question {
-      margin-bottom: 2em;
-      padding: 1.5em 3em;
-      background-color: #555;
-      color: #fff;
+      margin-bottom:2em; padding:1.5em 3em; background-color:#555; color:#fff;
+      border-radius:1.5em; box-shadow:0 2px 5px rgba(0,0,0,.1); text-align:center;
     }
     .buttons {
-      display: flex;
-      gap: 1.3em;
-      justify-content: center;
-      flex-direction: column;
-      width: 100%;
-      flex-wrap: wrap;
-    }
-    .question, .button {
-      border-radius: 1.5em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      display:flex; gap:1.3em; justify-content:center; flex-direction:column;
+      width:100%; flex-wrap:wrap;
     }
     .button {
-      padding: 1.5em 3em;
-      cursor: pointer;
-      transition: transform 0.1s;
-      text-decoration: none;
-      background-color: #fff;
-      color: #111;
-      flex: 1 1 0;
+      padding:1.5em 3em; cursor:pointer; transition:transform .1s;
+      text-decoration:none; background-color:#fff; color:#111; flex:1 1 0;
+      border-radius:1.5em; box-shadow:0 2px 5px rgba(0,0,0,.1); text-align:center;
     }
-    .button:hover {
-      transform: scale(1.05);
-    }
+    .button:hover { transform:scale(1.05); }
+    .note { margin-top:1em; font-size:.8em; color:#333; text-align:center; opacity:.85; }
+    .error { color:#b00020; font-size:.9em; margin-top:.8em; text-align:center; }
   </style>
 </head>
 <body>
@@ -65,124 +40,139 @@
       <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="maybeBtn">NO but maybe will start one day</a>
       <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="noBtn">NO and most likely will never start</a>
     </div>
+    <div class="note" id="info"></div>
+    <div class="error" id="error" hidden></div>
+    <noscript>
+      <p class="error">JavaScript is required to continue. Please enable JavaScript and reload.</p>
+    </noscript>
   </section>
 
   <script>
+    // ---- Config ------------------------------------------------------------
     const CONFIG = {
       defaultLang: 'en',
       ridKey: 'RID',
+      yandexUrl: 'https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y'
     };
 
+    // ---- i18n --------------------------------------------------------------
     const translations = {
-      en: { 
-        question: "Do you bet on sports online?", 
-        yes: "YES", 
-        maybe: "NO but maybe will start one day", 
-        no: "NO and most likely will never start" 
+      en: {
+        question: "Do you bet on sports online?",
+        yes: "YES",
+        maybe: "NO but maybe will start one day",
+        no: "NO and most likely will never start",
+        missingRid: "Your survey link is missing an ID (RID). Please re-open the survey from your panel.",
+        info: "Your responses will be used for research purposes only."
       },
-      sr: { 
-        question: "Da li se kladite na sport online?", 
-        yes: "DA", 
-        maybe: "NE, ali možda ću jednog dana početi", 
-        no: "NE, i najverovatnije nikada neću početi" 
+      sr: {
+        question: "Da li se kladite na sport online?",
+        yes: "DA",
+        maybe: "NE, ali možda ću jednog dana početi",
+        no: "NE, i najverovatnije nikada neću početi",
+        missingRid: "Nedostaje ID učesnika (RID). Molimo otvorite anketu ponovo preko panela.",
+        info: "Vaši odgovori koristiće se isključivo u istraživačke svrhe."
       },
-      ru: { 
-        question: "Делаете ли вы ставки на спорт онлайн?", 
-        yes: "ДА", 
-        maybe: "НЕТ, но не против попробовать", 
-        no: "НЕТ и не планирую начинать" 
+      ru: {
+        question: "Делаете ли вы ставки на спорт онлайн?",
+        yes: "ДА",
+        maybe: "НЕТ, но не против попробовать",
+        no: "НЕТ и не планирую начинать",
+        missingRid: "Отсутствует идентификатор участника (RID). Пожалуйста, откройте ссылку заново из панели.",
+        info: "Ваши ответы будут использованы только в исследовательских целях."
       }
     };
 
-    function updateContent(lang) {
-      try {
-        const questionEl = document.getElementById('question');
-        const buttons = [
-          document.getElementById('yesBtn'),
-          document.getElementById('maybeBtn'), 
-          document.getElementById('noBtn')
-        ];
-        
-        if (!questionEl || buttons.some(btn => !btn)) {
-          throw new Error('One or more elements not found in the DOM');
-        }
+    // ---- Helpers -----------------------------------------------------------
+    function isValidRid(v) { return !!v && /^[A-Za-z0-9_-]+$/.test(v); }
 
-        const langData = translations[lang];
-        questionEl.textContent = langData.question;
-        
-        const keys = ['yes', 'maybe', 'no'];
-        buttons.forEach((button, index) => {
-          button.textContent = langData[keys[index]];
-        });
-      } catch (error) {
-        console.error('Failed to update content:', error);
-      }
-    }
-
-    function addRidParam(link, ridValue) {
-      if (!link || !ridValue) return;
-      try {
-        const linkUrl = new URL(link.href);
-        linkUrl.searchParams.set(CONFIG.ridKey, ridValue);
-        link.href = linkUrl.toString();
-      } catch (error) {
-        console.error('Failed to add RID to link:', error);
-      }
-    }
-
-    function isValidRid(ridValue) {
-      return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
-    }
-    
     function getRidFromUrl() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        for (const [key, value] of params.entries()) {
-          if (key.toLowerCase() === CONFIG.ridKey.toLowerCase() && isValidRid(value)) {
-            return value.trim();
+        const p = new URLSearchParams(window.location.search);
+        for (const [k, v] of p.entries()) {
+          if (k.toLowerCase() === CONFIG.ridKey.toLowerCase() && isValidRid(v)) {
+            return v.trim();
           }
         }
-        return null;
-      } catch (error) {
-        console.error('Failed to parse URL parameters:', error);
-        return null;
-      }
+      } catch {}
+      return "";
     }
 
     function isLocalStorageAvailable() {
       try {
-        const storage = window.localStorage;
-        const test = '__storage_test__';
-        storage.setItem(test, test);
-        storage.removeItem(test);
+        const t = '__storage_test__';
+        localStorage.setItem(t, t);
+        localStorage.removeItem(t);
         return true;
-      } catch {
-        return false;
+      } catch { return false; }
+    }
+
+    function setHrefWithRid(aEl, baseUrl, rid) {
+      try {
+        const u = new URL(baseUrl);
+        if (isValidRid(rid)) u.searchParams.set(CONFIG.ridKey, rid);
+        aEl.href = u.toString();
+      } catch (e) {
+        console.error('Failed to set href:', e);
       }
     }
-    
+
+    function setTexts(lang) {
+      const t = translations[lang] || translations[CONFIG.defaultLang];
+      const q = document.getElementById('question');
+      const yes = document.getElementById('yesBtn');
+      const maybe = document.getElementById('maybeBtn');
+      const no = document.getElementById('noBtn');
+      const info = document.getElementById('info');
+      if (q) q.textContent = t.question;
+      if (yes) yes.textContent = t.yes;
+      if (maybe) maybe.textContent = t.maybe;
+      if (no) no.textContent = t.no;
+      if (info) info.textContent = t.info;
+      return t; // вернуть текущие фразы (для сообщения об ошибке)
+    }
+
+    // ---- Init --------------------------------------------------------------
     document.addEventListener('DOMContentLoaded', () => {
       try {
-        const userLang = navigator.language?.split('-')[0] || CONFIG.defaultLang;
-        const currentLang = translations[userLang] ? userLang : CONFIG.defaultLang;
-        updateContent(currentLang);
+        // Выбор языка интерфейса
+        const userLang = (navigator.language || CONFIG.defaultLang).split('-')[0];
+        const lang = translations[userLang] ? userLang : CONFIG.defaultLang;
+        const t = setTexts(lang);
 
-        const ridValue = getRidFromUrl();
-        if (ridValue) {
-          if (isLocalStorageAvailable()) {
-            localStorage.setItem('RID', ridValue);
-          }
+        // 1) RID из URL
+        let rid = getRidFromUrl();
 
-          document.querySelectorAll('.button').forEach(btn => addRidParam(btn, ridValue));
+        // 2) Если в URL нет — localStorage / sessionStorage
+        if (!rid) {
+          try { rid = (localStorage.getItem(CONFIG.ridKey) || '').trim() || rid; } catch {}
+          try { rid = (sessionStorage.getItem(CONFIG.ridKey) || '').trim() || rid; } catch {}
         }
-      } catch (error) {
-        console.error('Initialization failed:', error);
+
+        const yes = document.getElementById('yesBtn');
+        const maybe = document.getElementById('maybeBtn');
+        const no = document.getElementById('noBtn');
+
+        if (isValidRid(rid)) {
+          // Сохраняем для надёжности
+          try { if (isLocalStorageAvailable()) localStorage.setItem(CONFIG.ridKey, rid); } catch {}
+          try { sessionStorage.setItem(CONFIG.ridKey, rid); } catch {}
+
+          // Прокидываем RID в ссылки на Яндекс
+          [yes, maybe, no].forEach(a => a && setHrefWithRid(a, CONFIG.yandexUrl, rid));
+        } else {
+          // Блокируем клики, если RID нет
+          const err = document.getElementById('error');
+          if (err) { err.hidden = false; err.textContent = t.missingRid; }
+          [yes, maybe, no].forEach(a => a && a.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert(t.missingRid);
+          }));
+        }
+      } catch (e) {
+        console.error('Initialization failed:', e);
       }
     });
   </script>
 </body>
 </html>
-
-
-
-
