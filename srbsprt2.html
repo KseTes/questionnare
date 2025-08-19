@@ -1,87 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico" />
-  <title>Questionnaire redirector</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/x-icon" href="/questionnare/favicon.ico">
+  <title>Questionnaire</title>
   <style>
     body {
-      display:flex; align-items:center; justify-content:center;
-      min-height:100vh; font-family:Arial, sans-serif; background:#f0f0f0;
-      margin:0; padding:2em; color:#222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;  
+      background-color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      color: #000;
     }
-    .msg { max-width:600px; text-align:center; }
-    .msg.error { color:#b00020; }
-    .msg.info { color:#333; }
+    .wrapper {
+      max-width: 25em;
+      padding: 0.5em;
+    }
+    .question {
+      margin-bottom: 2em;
+      padding: 1.5em 3em;
+      background-color: #555;
+      color: #fff;
+    }
+    .buttons {
+      display: flex;
+      gap: 1.3em;
+      justify-content: center;
+      flex-direction: column;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .question, .button {
+      border-radius: 1.5em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .button {
+      padding: 1.5em 3em;
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-decoration: none;
+      background-color: #fff;
+      color: #111;
+      flex: 1 1 0;
+    }
+    .button:hover {
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
-  <div id="message" class="msg info">Redirecting…</div>
+  <section class="wrapper">
+    <div class="question" id="question">Do you bet on sports online?</div>
+    <div class="buttons">
+      <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="yesBtn">YES</a>
+      <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="maybeBtn">NO but maybe will start one day</a>
+      <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="noBtn">NO and most likely will never start</a>
+    </div>
+  </section>
 
   <script>
-  (function() {
     const CONFIG = {
+      defaultLang: 'en',
       ridKey: 'RID',
-      targetUrl: 'https://notch.insights.supply/cb',        // фиксированный endpoint
-      token: 'c08a1f86-b7ad-409b-b6a3-53f9d4457083',        // фиксированный token
-      backupUrl: 'https://ksetes.github.io/questionnare/srbsprt'
     };
 
-    function isValidRid(v) { return !!v && /^[A-Za-z0-9_-]+$/.test(v); }
+    const translations = {
+      en: { 
+        question: "Do you bet on sports online?", 
+        yes: "YES", 
+        maybe: "NO but maybe will start one day", 
+        no: "NO and most likely will never start" 
+      },
+      sr: { 
+        question: "Da li se kladite na sport online?", 
+        yes: "DA", 
+        maybe: "NE, ali možda ću jednog dana početi", 
+        no: "NE, i najverovatnije nikada neću početi" 
+      },
+      ru: { 
+        question: "Делаете ли вы ставки на спорт онлайн?", 
+        yes: "ДА", 
+        maybe: "НЕТ, но не против попробовать", 
+        no: "НЕТ и не планирую начинать" 
+      }
+    };
 
-    function getRid() {
-      // 1) из URL (если вдруг вернулся с RID)
+    function updateContent(lang) {
       try {
-        const p = new URLSearchParams(location.search);
-        const ridFromUrl = (p.get(CONFIG.ridKey) || '').trim();
-        if (isValidRid(ridFromUrl)) return ridFromUrl;
-      } catch {}
-      // 2) из localStorage
-      try {
-        const ls = (localStorage.getItem(CONFIG.ridKey) || '').trim();
-        if (isValidRid(ls)) return ls;
-      } catch {}
-      // 3) из sessionStorage
-      try {
-        const ss = (sessionStorage.getItem(CONFIG.ridKey) || '').trim();
-        if (isValidRid(ss)) return ss;
-      } catch {}
-      return '';
-    }
-
-    function redirect() {
-      const rid = getRid();
-      const msg = document.getElementById('message');
-
-      if (!isValidRid(rid)) {
-        // если RID нет — показываем сообщение и не редиректим
-        if (msg) {
-          msg.className = 'msg error';
-          msg.textContent = 'RID is missing — please re-open the survey from your panel link.';
+        const questionEl = document.getElementById('question');
+        const buttons = [
+          document.getElementById('yesBtn'),
+          document.getElementById('maybeBtn'), 
+          document.getElementById('noBtn')
+        ];
+        
+        if (!questionEl || buttons.some(btn => !btn)) {
+          throw new Error('One or more elements not found in the DOM');
         }
-        // fallback: через несколько секунд можно вернуть на первый лендинг
-        setTimeout(() => { location.replace(CONFIG.backupUrl); }, 5000);
-        return;
+
+        const langData = translations[lang];
+        questionEl.textContent = langData.question;
+        
+        const keys = ['yes', 'maybe', 'no'];
+        buttons.forEach((button, index) => {
+          button.textContent = langData[keys[index]];
+        });
+      } catch (error) {
+        console.error('Failed to update content:', error);
       }
-
-      const url = new URL(CONFIG.targetUrl);
-      url.searchParams.set('token', CONFIG.token);   // всегда фиксированный
-      url.searchParams.set(CONFIG.ridKey, rid);      // именно RID (верхний регистр)
-
-      if (msg) {
-        msg.className = 'msg info';
-        msg.textContent = 'Redirecting you to complete…';
-      }
-      console.log('Redirecting to:', url.toString());
-
-      // редирект
-      location.replace(url.toString());
     }
 
-    document.addEventListener('DOMContentLoaded', redirect);
-  })();
+    function addRidParam(link, ridValue) {
+      if (!link || !ridValue) return;
+      try {
+        const linkUrl = new URL(link.href);
+        linkUrl.searchParams.set(CONFIG.ridKey, ridValue);
+        link.href = linkUrl.toString();
+      } catch (error) {
+        console.error('Failed to add RID to link:', error);
+      }
+    }
+
+    function isValidRid(ridValue) {
+      return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
+    }
+    
+    function getRidFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        for (const [key, value] of params.entries()) {
+          if (key.toLowerCase() === CONFIG.ridKey.toLowerCase() && isValidRid(value)) {
+            return value.trim();
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('Failed to parse URL parameters:', error);
+        return null;
+      }
+    }
+
+    function isLocalStorageAvailable() {
+      try {
+        const storage = window.localStorage;
+        const test = '__storage_test__';
+        storage.setItem(test, test);
+        storage.removeItem(test);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const userLang = navigator.language?.split('-')[0] || CONFIG.defaultLang;
+        const currentLang = translations[userLang] ? userLang : CONFIG.defaultLang;
+        updateContent(currentLang);
+
+        const ridValue = getRidFromUrl();
+        if (ridValue) {
+          if (isLocalStorageAvailable()) {
+            localStorage.setItem('RID', ridValue);
+          }
+
+          document.querySelectorAll('.button').forEach(btn => addRidParam(btn, ridValue));
+        }
+      } catch (error) {
+        console.error('Initialization failed:', error);
+      }
+    });
   </script>
 </body>
 </html>
+
+
+
