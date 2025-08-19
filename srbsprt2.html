@@ -13,6 +13,7 @@
       const CONFIG = {
         ridKey: 'RID',
         targetUrl: 'https://notch.insights.supply/cb',
+        token: 'c08a1f86-b7ad-409b-b6a3-53f9d4457083',
         backupUrl: 'https://ksetes.github.io/questionnare/srbsprt'
       };
       
@@ -36,7 +37,7 @@
         }
 
         const redirectUrl = new URL(CONFIG.targetUrl);
-        redirectUrl.searchParams.set('token', token);
+        redirectUrl.searchParams.set('token', CONFIG.token);
         
         if (ridValue) {
           redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
@@ -53,3 +54,4 @@
   </script>
 </body>
 </html>
+
