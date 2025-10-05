@@ -181,7 +181,7 @@
         const requestedLang = getParameterFromUrl(CONFIG.langKey);
         
         if (!requestedLang || !availableLangCodes.includes(requestedLang)) {
-          window.location.replace('406.html');
+          window.location.replace('./406.html');
           return;
         }
 
