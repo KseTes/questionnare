@@ -61,9 +61,9 @@
   <section class="wrapper">
     <div class="question" id="question">Do you bet on sports online?</div>
     <div class="buttons">
-      <a href="https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y" class="button" id="yesBtn">YES</a>
-      <a href="https://samplicio.us/s/ClientCallBack.aspx?RIS=20" class="button" id="maybeBtn">NO but maybe will start one day</a>
-      <a href="https://samplicio.us/s/ClientCallBack.aspx?RIS=20" class="button" id="noBtn">NO and most likely will never start</a>
+      <a href="#" class="button" id="yesBtn">YES</a>
+      <a href="#" class="button" id="maybeBtn">NO but maybe will start one day</a>
+      <a href="#" class="button" id="noBtn">NO and most likely will never start</a>
       
     </div>
   </section>
@@ -72,6 +72,8 @@
     const CONFIG = {
       defaultLang: 'en',
       ridKey: 'RID',
+      langKey: 'lang',
+      fallbackLink: 'https://samplicio.us/s/ClientCallBack.aspx?RIS=20'
     };
 
     const translations = {
@@ -79,21 +81,32 @@
         question: "Do you bet on sports online?", 
         yes: "YES", 
         maybe: "NO but maybe will start one day", 
-        no: "NO and most likely will never start" 
+        no: "NO and most likely will never start",
+        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
+        maybeLink: CONFIG.fallbackLink,
+        noLink: CONFIG.fallbackLink 
       },
       sr: { 
         question: "Da li se kladite na sport online?", 
         yes: "DA", 
         maybe: "NE, ali možda ću jednog dana početi", 
-        no: "NE, i najverovatnije nikada neću početi" 
+        no: "NE, i najverovatnije nikada neću početi",
+        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
+        maybeLink: CONFIG.fallbackLink,
+        noLink: CONFIG.fallbackLink 
       },
       ru: { 
         question: "Делаете ли вы ставки на спорт онлайн?", 
         yes: "ДА", 
         maybe: "НЕТ, но не против попробовать", 
-        no: "НЕТ и не планирую начинать" 
+        no: "НЕТ и не планирую начинать",
+        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
+        maybeLink: CONFIG.fallbackLink,
+        noLink: CONFIG.fallbackLink 
       }
     };
+
+    const availableLangCodes = Object.keys(translations);
 
     function updateContent(lang) {
       try {
@@ -114,6 +127,7 @@
         const keys = ['yes', 'maybe', 'no'];
         buttons.forEach((button, index) => {
           button.textContent = langData[keys[index]];
+          button.href = langData[`${keys[index]}Link`];
         });
       } catch (error) {
         console.error('Failed to update content:', error);
@@ -135,11 +149,11 @@
       return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
     }
     
-    function getRidFromUrl() {
+    function getParameterFromUrl(paramKey) {
       try {
         const params = new URLSearchParams(window.location.search);
         for (const [key, value] of params.entries()) {
-          if (key.toLowerCase() === CONFIG.ridKey.toLowerCase() && isValidRid(value)) {
+          if (key.toLowerCase() === paramKey.toLowerCase()) {
             return value.trim();
           }
         }
@@ -164,11 +178,16 @@
     
     document.addEventListener('DOMContentLoaded', () => {
       try {
-        const userLang = navigator.language?.split('-')[0] || CONFIG.defaultLang;
-        const currentLang = translations[userLang] ? userLang : CONFIG.defaultLang;
-        updateContent(currentLang);
+        const requestedLang = getParameterFromUrl(CONFIG.langKey);
+        
+        if (!requestedLang || !availableLangCodes.includes(requestedLang)) {
+          window.location.replace('/406.html');
+          return;
+        }
 
-        const ridValue = getRidFromUrl();
+        updateContent(requestedLang);
+
+        const ridValue = getParameterFromUrl(CONFIG.ridKey);
         if (ridValue) {
           if (isLocalStorageAvailable()) {
             localStorage.setItem('RID', ridValue);
@@ -183,10 +202,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
