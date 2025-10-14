@@ -72,132 +72,216 @@
     const CONFIG = {
       defaultLang: 'en',
       ridKey: 'RID',
-      langKey: 'lang',
+      regionKey: 'region',
       fallbackLink: 'https://samplicio.us/s/ClientCallBack.aspx?RIS=20'
     };
 
     const translations = {
-      en: { 
-        question: "Do you bet on sports online?", 
-        yes: "YES", 
-        maybe: "NO but maybe will start one day", 
-        no: "NO and most likely will never start",
-        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
-        maybeLink: CONFIG.fallbackLink,
-        noLink: CONFIG.fallbackLink 
+      sr: {
+        defaultLang: 'sr',
+        links: {
+          yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y  ",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you bet on sports online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          sr: {
+            question: "Da li se kladite na sport online?",
+            yes: "DA",
+            maybe: "NE, ali možda ću jednog dana početi",
+            no: "NE, i najverovatnije nikada neću početi"
+          },
+          ru: {
+            question: "Делаете ли вы ставки на спорт онлайн?",
+            yes: "ДА",
+            maybe: "НЕТ, но не против попробовать",
+            no: "НЕТ и не планирую начинать"
+          }
+        }
       },
-      sr: { 
-        question: "Da li se kladite na sport online?", 
-        yes: "DA", 
-        maybe: "NE, ali možda ću jednog dana početi", 
-        no: "NE, i najverovatnije nikada neću početi",
-        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
-        maybeLink: CONFIG.fallbackLink,
-        noLink: CONFIG.fallbackLink 
+      ru: {
+        defaultLang: 'ru',
+        links: {
+          yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y  ",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you bet on sports online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          sr: {
+            question: "Da li se kladite na sport online?",
+            yes: "DA",
+            maybe: "NE, ali možda ću jednog dana početi",
+            no: "NE, i najverovatnije nikada neću početi"
+          },
+          ru: {
+            question: "Делаете ли вы ставки на спорт онлайн?",
+            yes: "ДА",
+            maybe: "НЕТ, но не против попробовать",
+            no: "НЕТ и не планирую начинать"
+          }
+        }
       },
-      ru: { 
-        question: "Делаете ли вы ставки на спорт онлайн?", 
-        yes: "ДА", 
-        maybe: "НЕТ, но не против попробовать", 
-        no: "НЕТ и не планирую начинать",
-        yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y",
-        maybeLink: CONFIG.fallbackLink,
-        noLink: CONFIG.fallbackLink 
+      en: {
+        defaultLang: 'en',
+        links: {
+          yesLink: "https://yandex.ru/poll/enter/FYZDVAHG4KooF2kUrFeZ7y  ",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you bet on sports online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          sr: {
+            question: "Da li se kladite na sport online?",
+            yes: "DA",
+            maybe: "NE, ali možda ću jednog dana početi",
+            no: "NE, i najverovatnije nikada neću početi"
+          },
+          ru: {
+            question: "Делаете ли вы ставки на спорт онлайн?",
+            yes: "ДА",
+            maybe: "НЕТ, но не против попробовать",
+            no: "НЕТ и не планирую начинать"
+          }
+        }
       }
     };
 
-    const availableLangCodes = Object.keys(translations);
+    const availableRegionCodes = Object.keys(translations);
 
-    function updateContent(lang) {
-      try {
-        const questionEl = document.getElementById('question');
-        const buttons = [
-          document.getElementById('yesBtn'),
-          document.getElementById('maybeBtn'), 
-          document.getElementById('noBtn')
-        ];
-        
-        if (!questionEl || buttons.some(btn => !btn)) {
-          throw new Error('One or more elements not found in the DOM');
+    function updateContent(region, lang) {
+        try {
+            const questionEl = document.getElementById('question');
+            const buttons = [
+                document.getElementById('yesBtn'),
+                document.getElementById('maybeBtn'), 
+                document.getElementById('noBtn')
+            ];
+            
+            if (!questionEl || buttons.some(btn => !btn)) {
+                throw new Error('One or more elements not found in the DOM');
+            }
+
+            const regionData = translations[region];
+            if (!regionData) {
+                throw new Error(`No data found for region: ${region}`);
+            }
+
+            const langData = regionData.languages[lang];
+            const messages = langData || regionData.languages[regionData.defaultLang];
+
+            questionEl.textContent = messages.question;
+            
+            const keys = ['yes', 'maybe', 'no'];
+            buttons.forEach((button, index) => {
+                button.textContent = messages[keys[index]];
+                button.href = regionData.links[`${keys[index]}Link`];
+            });
+        } catch (error) {
+            console.error('Failed to update content:', error);
         }
-
-        const langData = translations[lang];
-        questionEl.textContent = langData.question;
-        
-        const keys = ['yes', 'maybe', 'no'];
-        buttons.forEach((button, index) => {
-          button.textContent = langData[keys[index]];
-          button.href = langData[`${keys[index]}Link`];
-        });
-      } catch (error) {
-        console.error('Failed to update content:', error);
-      }
     }
 
     function addRidParam(link, ridValue) {
-      if (!link || !ridValue) return;
-      try {
-        const linkUrl = new URL(link.href);
-        linkUrl.searchParams.set(CONFIG.ridKey, ridValue);
-        link.href = linkUrl.toString();
-      } catch (error) {
-        console.error('Failed to add RID to link:', error);
-      }
+        if (!link || !ridValue) return;
+        try {
+            const linkUrl = new URL(link.href);
+            linkUrl.searchParams.set(CONFIG.ridKey, ridValue);
+            link.href = linkUrl.toString();
+        } catch (error) {
+            console.error('Failed to add RID to link:', error);
+        }
     }
 
     function isValidRid(ridValue) {
-      return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
+        return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue);
     }
     
     function getParameterFromUrl(paramKey) {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        for (const [key, value] of params.entries()) {
-          if (key.toLowerCase() === paramKey.toLowerCase()) {
-            return value.trim();
-          }
+        try {
+            const params = new URLSearchParams(window.location.search);
+            for (const [key, value] of params.entries()) {
+                if (key.toLowerCase() === paramKey.toLowerCase()) {
+                    return value.trim();
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Failed to parse URL parameters:', error);
+            return null;
         }
-        return null;
-      } catch (error) {
-        console.error('Failed to parse URL parameters:', error);
-        return null;
-      }
     }
 
     function isLocalStorageAvailable() {
-      try {
-        const storage = window.localStorage;
-        const test = '__storage_test__';
-        storage.setItem(test, test);
-        storage.removeItem(test);
-        return true;
-      } catch {
-        return false;
-      }
+        try {
+            const storage = window.localStorage;
+            const test = '__storage_test__';
+            storage.setItem(test, test);
+            storage.removeItem(test);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function getBrowserLanguage(region) {
+        const regionData = translations[region];
+        if (!regionData) return regionData.defaultLang;
+
+        const browserLangs = navigator.languages || [navigator.language];
+        
+        for (const lang of browserLangs) {
+            const primaryLang = lang.split('-')[0].toLowerCase();
+            if (primaryLang in regionData.languages) {
+                return primaryLang;
+            }
+            if (lang.toLowerCase() in regionData.languages) {
+                return lang.toLowerCase();
+            }
+        }
+        return regionData.defaultLang;
     }
     
     document.addEventListener('DOMContentLoaded', () => {
-      try {
-        const requestedLang = getParameterFromUrl(CONFIG.langKey);
-        
-        if (!requestedLang || !availableLangCodes.includes(requestedLang)) {
-          window.location.replace('./406.html');
-          return;
+        try {
+            const requestedRegion = getParameterFromUrl(CONFIG.regionKey);
+            
+            if (!requestedRegion || !availableRegionCodes.includes(requestedRegion)) {
+                window.location.replace('./406.html');
+                return;
+            }
+
+            const detectedLang = getBrowserLanguage(requestedRegion);
+
+            updateContent(requestedRegion, detectedLang);
+
+            const ridValue = getParameterFromUrl(CONFIG.ridKey);
+            if (ridValue) {
+                if (isLocalStorageAvailable()) {
+                    localStorage.setItem('RID', ridValue);
+                }
+
+                document.querySelectorAll('.button').forEach(btn => addRidParam(btn, ridValue));
+            }
+        } catch (error) {
+            console.error('Initialization failed:', error);
         }
-
-        updateContent(requestedLang);
-
-        const ridValue = getParameterFromUrl(CONFIG.ridKey);
-        if (ridValue) {
-          if (isLocalStorageAvailable()) {
-            localStorage.setItem('RID', ridValue);
-          }
-
-          document.querySelectorAll('.button').forEach(btn => addRidParam(btn, ridValue));
-        }
-      } catch (error) {
-        console.error('Initialization failed:', error);
-      }
     });
   </script>
 </body>
