@@ -75,10 +75,26 @@
     };
 
     const translations = {
-    uz: {
-        defaultLang: 'uz',
+       ru: {
+        defaultLang: 'ru',
         links: {
-          yesLink: "https://yandex.ru/poll/ATJsSGMZ48GnFgyQg7kynQ",
+          yesLink: "",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          ru: {
+            question: "Играете ли вы в онлайн-казино?",
+            yes: "ДА",
+            maybe: "НЕТ, но, возможно, когда-нибудь начну",
+            no: "НЕТ и, скорее всего, никогда не начну"
+          }
+        }
+      },
+      sl: {
+        defaultLang: 'sl',
+        links: {
+          yesLink: "",
           maybeLink: CONFIG.fallbackLink,
           noLink: CONFIG.fallbackLink
         },
@@ -88,6 +104,160 @@
             yes: "YES",
             maybe: "NO but maybe will start one day",
             no: "NO and most likely will never start"
+          },
+          sl: {
+            question: "ඔබ මාර්ගගත කැසිනෝ ක්‍රීඩා කරනවාද?",
+            yes: "ඔව්",
+            maybe: "කිසිදා ක්‍රීඩා කර නැත. එනමුත් යම් දිනක ක්‍රීඩා කිරීම ආරම්භ කිරීමට ඉඩ ඇත",
+            no: "කිසිදා ක්‍රීඩා කර නැත. කිසිදු දිනක ක්‍රීඩා කිරීම ආරම්භ නොකරනු ඇත"
+          }          
+        }
+      },
+      eg: {
+        defaultLang: 'eg',
+        links: {
+          yesLink: "",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          eg: {
+            question: "هل تلعب ألعاب الكازينو على الإنترنت؟",
+            yes: "نعم",
+            maybe: "أبدًا، لكن ربما سأبدأ اللعب يوماً ما",
+            no: "أبدًا، وعلى الأرجح لن أبدأ اللعب أبدًا"
+          }          
+        }
+      },
+      mn: {
+        defaultLang: 'mn',
+        links: {
+          yesLink: "",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          mn: {
+            question: "အွန်လိုင်းကာစီနိုကစားပါသလား။",
+            yes: "ဟုတ်သည်။",
+            maybe: "မည်သည့်အခါမျှ။ သို့သော် တစ်နေ့နေ့တွင် စတင်ကစားနိုင်ပါသည်။",
+            no: "မည်သည့်အခါမျှ။ ထို့အပြင် စတင်ကစားမည့် အလားအလာ သိပ်မရှိပါ။"
+          }          
+        }
+      },
+      tr: {
+        defaultLang: 'tr',
+        links: {
+          yesLink: "https://yandex.ru/poll/QgnaC75cfkzf2VcdDGRvYr",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          tr: {
+            question: "Çevrimiçi casino oyunları oynuyor musunuz?",
+            yes: "EVET",
+            maybe: "Asla ama belki bir gün oynarım",
+            no: "Asla ve büyük olasılıkla da asla oynamam"
+          }          
+        }
+      },
+      th: {
+        defaultLang: 'th',
+        links: {
+          yesLink: "https://yandex.ru/poll/2Q7yUDAD2yWAAGZjjFoHWg",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          th: {
+            question: "คุณเล่นคาสิโนออนไลน์หรือเปล่า?",
+            yes: "ใช่",
+            maybe: "ไม่เคย แต่บางทีอาจจะเริ่มเล่นสักวันก็ได้",
+            no: "ไม่เคย และมีแนวโน้มว่าจะไม่เริ่มเล่น"
+          }          
+        }
+      },
+      ind: {
+        defaultLang: 'ind',
+        links: {
+          yesLink: "https://yandex.ru/poll/SytsbHr6h6aZFuHSgcHiod",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          ind: {
+            question: "Apakah Anda bermain kasino daring?",
+            yes: "YA",
+            maybe: "Tidak pernah. Tapi mungkin saya akan mulai bermain suatu hari nanti",
+            no: "Tidak pernah. Dan kemungkinan besar tidak akan pernah mulai bermain"
+          }          
+        }
+      },
+      bg: {
+        defaultLang: 'bg',
+        links: {
+          yesLink: "https://yandex.ru/poll/WiT6eKkbdrUDSNZA5QRBRv",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "Do you play casino online?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          bg: {
+            question: "তুমি কি অনলাইন ক্যাসিনো খেলে?",
+            yes: "হ্যাঁ",
+            maybe: "কখনোই না। তবে হয়তো কোনো একদিন খেলা শুরু করব",
+            no: "কখনোই না। এবং সম্ভবত কখনোই খেলা শুরু করব না"
+          }          
+        }
+      },
+      uz: {
+        defaultLang: 'uz',
+        links: {
+          yesLink: "https://yandex.ru/poll/ATJsSGMZ48GnFgyQg7kynQ",
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          ru: {
+            question: "Играете ли вы в онлайн-казино?",
+            yes: "ДА",
+            maybe: "НЕТ, но, возможно, когда-нибудь начну",
+            no: "НЕТ и, скорее всего, никогда не начну"
           },
           uz: {
             question: "Siz onlayn kazino o'ynaysizmi?",
@@ -590,6 +760,7 @@
   </script>
 </body>
 </html>
+
 
 
 
