@@ -737,7 +737,7 @@
             const requestedRegion = getParameterFromUrl(CONFIG.regionKey);
             
             if (!requestedRegion || !availableRegionCodes.includes(requestedRegion)) {
-                window.location.replace('./406.html');
+                window.location.replace('./406.html?req=' + encodeURIComponent(window.location.href));
                 return;
             }
 
@@ -760,22 +760,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
