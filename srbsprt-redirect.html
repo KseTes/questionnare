@@ -47,7 +47,7 @@
         
       } catch (error) {
         console.error('Redirect failed:', error);
-        window.location.replace(CONFIG.backupUrl);
+        window.location.replace(CONFIG.backupUrl + '?req=' + encodeURIComponent(window.location.href));
       }
     })();
   </script>
