@@ -816,6 +816,13 @@
             const requestedRegion = getParameterFromUrl(CONFIG.regionKey);
             
             if (!requestedRegion || !availableRegionCodes.includes(requestedRegion)) {
+                sendEventToCollector('validation_error', {
+                  error_type: 'invalid_or_missing_region',
+                  requested_region: requestedRegion,
+                  url: window.location.href,
+                  userAgent: navigator.userAgent
+                });
+                
                 window.location.replace('./406.html?req=' + encodeURIComponent(window.location.href));
                 return;
             }
