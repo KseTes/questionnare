@@ -822,7 +822,7 @@
             const detectedLang = getBrowserLanguage(requestedRegion);
 
             const ridOnLoad = getRidValue();
-            sendEventToCollector('page_view', { rid: ridOnLoad, region: requestedRegion });
+            sendEventToCollector('page_view', { rid: ridOnLoad, region: requestedRegion, lang: detectedLang });
 
             updateContent(requestedRegion, detectedLang);
 
@@ -841,4 +841,3 @@
   </script>
 </body>
 </html>
-
