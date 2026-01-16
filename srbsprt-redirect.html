@@ -10,19 +10,56 @@
 <body>
   <script>
     (function() {
+      async function sendEventToCollector(eventType, eventData = {}) {
+        const COLLECT_ENDPOINT = 'https://ksetes.bpdev.ru/api/v1/collect';
+
+        try {
+            const payload = {
+                event: eventType,
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                ...eventData
+            };
+
+            const params = new URLSearchParams(payload).toString();
+            const fullUrl = `${COLLECT_ENDPOINT}?${params}`;
+
+            const response = await fetch(fullUrl, {
+                method: 'GET',
+                referrerPolicy: 'no-referrer-when-downgrade',
+                signal: AbortSignal.timeout(5000)
+            });
+
+            if (response.status !== 204) {
+                 console.warn(`Collector responded with unexpected status: ${response.status}`);
+            } else {
+                 console.debug('Redirect event sent successfully to collector.');
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+               console.warn('Collector request timed out during redirect.');
+            } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+               console.warn('Network error or CORS issue during redirect event:', error.message);
+            } else {
+               console.warn('Failed to send redirect event to collector:', error.message);
+            }
+        }
+      }
+
       const CONFIG = {
         ridKey: 'RID',
-        targetUrl: 'https://notch.insights.supply/cb',
-        backupUrl: 'https://ksetes.github.io/questionnare/406.html'
+        targetUrl: 'https://notch.insights.supply/cb  ',
+        backupUrl: 'https://ksetes.github.io/questionnare/406.html  '
       };
-      
+
       try {
         new URL(CONFIG.targetUrl);
         new URL(CONFIG.backupUrl);
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token')?.trim();
-        
+
         if (!token || !/^[\w-]+$/.test(token)) {
           throw new Error('Invalid or missing token parameter');
         }
@@ -35,18 +72,27 @@
           console.warn('LocalStorage access denied:', e);
         }
 
-        const redirectUrl = new URL(CONFIG.targetUrl);
-        redirectUrl.searchParams.set('token', token);
-        
-        if (ridValue) {
-          redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
-        }
+        const redirectEventData = {
+          token: token, 
+          rid: ridValue
+        };
 
-        console.log('Redirected to:', redirectUrl.toString());
-        window.location.replace(redirectUrl.toString());
-        
+        (async () => {
+          await sendEventToCollector('redirect', redirectEventData);
+          const redirectUrl = new URL(CONFIG.targetUrl);
+          redirectUrl.searchParams.set('token', token);
+
+          if (ridValue) {
+            redirectUrl.searchParams.set(CONFIG.ridKey, ridValue);
+          }
+
+          console.log('Redirected to:', redirectUrl.toString());
+          window.location.replace(redirectUrl.toString());
+        })();
+
       } catch (error) {
         console.error('Redirect failed:', error);
+        sendEventToCollector('redirect_error', { error: error.message, originalUrl: window.location.href });
         window.location.replace(CONFIG.backupUrl + '?req=' + encodeURIComponent(window.location.href));
       }
     })();
