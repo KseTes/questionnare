@@ -733,7 +733,8 @@
                     sendEventToCollector('button_click', {
                         button_id: clickedButtonId,
                         action: actionLabel,
-                        rid: rid
+                        rid: rid,
+                        lang: lang
                     });
 
                     const fallbackUrl = new URL(regionData.links[`${actionLabel}Link`]);
