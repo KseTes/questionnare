@@ -71,6 +71,7 @@
     const CONFIG = {
       ridKey: 'RID',
       regionKey: 'region',
+      collectEndpoint: 'https://bpdev.ru/api/v1/collect',
       fallbackLink: 'https://samplicio.us/s/ClientCallBack.aspx?RIS=20'
     };
 
@@ -639,6 +640,62 @@
 
     const availableRegionCodes = Object.keys(translations);
 
+    async function sendEventToCollector(eventType, eventData = {}) {
+      try {
+          const payload = {
+              event: eventType,
+              timestamp: new Date().toISOString(),
+              url: window.location.href,
+              userAgent: navigator.userAgent,
+              ...eventData
+          };
+
+          const params = new URLSearchParams(payload).toString();
+          const fullUrl = `${CONFIG.collectEndpoint}?${params}`;
+          const response = await fetch(fullUrl, {
+              method: 'GET',
+              referrerPolicy: 'no-referrer-when-downgrade',
+              signal: AbortSignal.timeout(5000)
+          });
+
+          if (response.status !== 204) {
+              console.warn(`Collector responded with unexpected status: ${response.status}`);
+          }
+
+          console.debug('Event sent successfully to collector:', payload.event);
+
+      } catch (error) {
+          if (error.name === 'AbortError') {
+            console.warn('Collector request timed out.');
+          } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            console.warn('Network error or CORS issue when sending event:', error.message);
+          } else {
+            console.warn('Failed to send event to collector:', error.message);
+          }
+      }
+    }
+
+    function getRidValue() {
+        let ridValue = null;
+        try {
+            const params = new URLSearchParams(window.location.search);
+            for (const [key, value] of params.entries()) {
+                if (key.toLowerCase() === CONFIG.ridKey.toLowerCase()) {
+                    ridValue = value.trim();
+                    break;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to parse URL parameters for RID:', error);
+        }
+
+        if (!ridValue && isLocalStorageAvailable()) {
+            ridValue = localStorage.getItem(CONFIG.ridKey);
+        }
+
+        return ridValue && /^[a-zA-Z0-9_-]+$/.test(ridValue) ? ridValue : null;
+    }
+
     function updateContent(region, lang) {
         try {
             const questionEl = document.getElementById('question');
@@ -663,9 +720,30 @@
             questionEl.textContent = messages.question;
             
             const keys = ['yes', 'maybe', 'no'];
+            const buttonIds = ['yesBtn', 'maybeBtn', 'noBtn'];
             buttons.forEach((button, index) => {
                 button.textContent = messages[keys[index]];
-                button.href = regionData.links[`${keys[index]}Link`];
+                button.removeAttribute('href');
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    const clickedButtonId = buttonIds[index]; // 'yesBtn', 'maybeBtn', 'noBtn'
+                    const actionLabel = keys[index]; // 'yes', 'maybe', 'no'
+
+                    const rid = getRidValue();
+                    sendEventToCollector('button_click', {
+                        button_id: clickedButtonId,
+                        action: actionLabel,
+                        rid: rid
+                    });
+
+                    const fallbackUrl = new URL(regionData.links[`${actionLabel}Link`]);
+                    if (rid) {
+                        fallbackUrl.searchParams.set(CONFIG.ridKey, rid);
+                    }
+                    setTimeout(() => {
+                        window.location.href = fallbackUrl.toString();
+                    }, 100);
+                };
             });
         } catch (error) {
             console.error('Failed to update content:', error);
@@ -743,6 +821,9 @@
 
             const detectedLang = getBrowserLanguage(requestedRegion);
 
+            const ridOnLoad = getRidValue();
+            sendEventToCollector('page_view', { rid: ridOnLoad, region: requestedRegion });
+
             updateContent(requestedRegion, detectedLang);
 
             const ridValue = getParameterFromUrl(CONFIG.ridKey);
@@ -760,85 +841,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
