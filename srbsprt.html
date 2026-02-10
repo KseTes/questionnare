@@ -76,7 +76,29 @@
     };
 
     const translations = {
-       ru: {
+       et: {
+        defaultLang: 'am',
+        links: {
+          yesLink: CONFIG.fallbackLink,
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "We are conducting a study on digital gambling. Do you play online casino games?",
+            yes: "YES",
+            maybe: "Not yet, but I might in the future",
+            no: "No, and I don’t plan to"
+          },
+          am: {
+            question: "በመስመር ላይ ካሲኖ ትጫወታለህ/ትጫወታለሽ?",
+            yes: "አዎ",
+            maybe: "አይደለም፣ ግን ምናልባት አንድ ቀን እጀምራለሁ/እጀምራለሽ",
+            no: "አይደለም፣ እና ምናልባት በጣም አልጀምርም/አልጀምርሽም"
+          }          
+        }
+      },
+      ru: {
         defaultLang: 'ru',
         links: {
           yesLink: CONFIG.fallbackLink,
@@ -849,3 +871,4 @@
   </script>
 </body>
 </html>
+
