@@ -76,7 +76,29 @@
     };
 
     const translations = {
-       et: {
+      it: {
+        defaultLang: 'it',
+        links: {
+          yesLink: CONFIG.fallbackLink,
+          maybeLink: CONFIG.fallbackLink,
+          noLink: CONFIG.fallbackLink
+        },
+        languages: {
+          en: {
+            question: "We are conducting a study on digital gambling. Do you play online casino games?",
+            yes: "YES",
+            maybe: "NO but maybe will start one day",
+            no: "NO and most likely will never start"
+          },
+          it: {
+            question: "Stiamo conducendo uno studio sul gioco d'azzardo digitale. Giochi ai casinò online?",
+            yes: "SÌ",
+            maybe: "NO, ma forse un giorno inizierò",
+            no: "NO e molto probabilmente non inizierò mai"
+          }          
+        }
+      },
+      et: {
         defaultLang: 'am',
         links: {
           yesLink: CONFIG.fallbackLink,
@@ -871,6 +893,7 @@
   </script>
 </body>
 </html>
+
 
 
 
